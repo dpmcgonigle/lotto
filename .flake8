@@ -1,0 +1,14 @@
+[flake8]
+max-line-length = 100
+max-complexity = 10
+ignore=
+    #comparison to True should be 'if cond is True:' or 'if cond:'
+    #Spark related issue
+    E712
+    #line break after binary operator
+    W504
+    #line break before binary operator
+    W503
+extend-ignore =
+    # See https://github.com/PyCQA/pycodestyle/issues/373
+    E203,
