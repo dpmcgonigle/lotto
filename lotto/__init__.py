@@ -4,6 +4,11 @@ lotto/__init__.py
 import os
 
 
+def loggername() -> str:
+    """Get logger name for Lotto"""
+    return "LottoLogger"
+
+
 def basedir() -> str:
     """Return base of lotto repo"""
     return os.path.join(_curdir(), "..")

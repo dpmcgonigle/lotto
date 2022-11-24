@@ -50,7 +50,7 @@ def send_notification(
     notification_subject: str,
     notification_body: str,
     destination_email_address: str,
-):
+) -> None:
     """Send an email to notify
 
     Args:
