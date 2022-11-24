@@ -79,8 +79,21 @@ class MegaMillionsTicket(LotteryTicket):
 
     def check_winnings(self, drawing_date: str, winning_numbers: List[int]) -> str:
         """Get a message containing winnings information"""
-        return f"Checking {drawing_date} MegaMillions winnings for \
-            ticket {self.numbers} and winning_numbers {winning_numbers}\n"
+        mb = winning_numbers[-1] == self.numbers[-1]
+        matches = 0
+        for winning_number in winning_numbers[:-1]:
+            if winning_number in self._numbers[:-1]:
+                matches += 1
+
+        winnings: int
+        if mb:
+            winnings = {0: 2, 1: 4, 2: 10, 3: 200, 4: 10000, 5: 1000000}[matches]
+        else:
+            winnings = {0: 0, 1: 0, 2: 0, 3: 10, 4: 500, 5: 1000000}[matches]
+        return f"{drawing_date} : MegaMillions ticket {self.numbers}\n \
+            winning_numbers {winning_numbers}\n \
+            hits: {matches}, megaball {mb}\n \
+            winnings: ${winnings} \n\n"
 
     @property
     def lotto_type(self) -> LottoType:
@@ -104,8 +117,21 @@ class PowerballTicket(LotteryTicket):
 
     def check_winnings(self, drawing_date: str, winning_numbers: List[int]) -> str:
         """Get a message containing winnings information"""
-        return f"Checking {drawing_date} Powerball winnings for \
-            ticket {self.numbers} and winning_numbers {winning_numbers}\n"
+        pb = winning_numbers[-1] == self.numbers[-1]
+        matches = 0
+        for winning_number in winning_numbers[:-1]:
+            if winning_number in self._numbers[:-1]:
+                matches += 1
+
+        winnings: int
+        if pb:
+            winnings = {0: 4, 1: 4, 2: 7, 3: 100, 4: 50000, 5: 1000000}[matches]
+        else:
+            winnings = {0: 0, 1: 0, 2: 0, 3: 7, 4: 100, 5: 1000000}[matches]
+        return f"{drawing_date} : Powerball ticket {self.numbers}\n \
+            winning_numbers {winning_numbers}\n \
+            hits: {matches}, powerball {pb}\n \
+            winnings: ${winnings} \n\n"
 
     @property
     def lotto_type(self) -> LottoType:

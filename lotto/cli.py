@@ -19,7 +19,7 @@ from lotto.db import (
     query_tickets_table,
 )
 from lotto.drawings import DrawingLoader
-from lotto.notify import verify_credentials
+from lotto.notify import send_notification, verify_credentials
 from lotto.tickets import TicketLoader
 
 logger = logging.getLogger(loggername())
@@ -33,6 +33,7 @@ SCHEDULE_TABLE_NAME = "ScheduleTable"
 @click.option("--notify-email", is_flag=True)
 @click.option("--notify-email-address", type=str)
 @click.option("--notify-email-password", type=str)
+@click.option("--destination-email-address", type=str, multiple=True)
 @click.option("--db-path", type=str)
 def check(
     start_date: str,
@@ -40,6 +41,7 @@ def check(
     notify_email: bool,
     notify_email_address: Optional[str],
     notify_email_password: Optional[str],
+    destination_email_address: Optional[List[str]],
     db_path: Optional[str] = None,
 ) -> None:
 
@@ -73,6 +75,19 @@ def check(
 
     #   Notify
     logger.info(f"NOTIFICATION: \n{notification_message}")
+
+    if notify_email:
+        assert destination_email_address is not None
+        assert notify_email_address is not None
+        assert notify_email_password is not None
+        for destination_email in destination_email_address:
+            send_notification(
+                notify_email_address,
+                notify_email_password,
+                f"New lottery drawings {start_date} - {end_date}",
+                notification_message,
+                destination_email,
+            )
 
     logger.info("CHECK END")
 

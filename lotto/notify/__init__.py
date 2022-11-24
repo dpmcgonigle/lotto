@@ -79,7 +79,7 @@ def send_notification(
     msg.set_content(notification_body)
 
     #   Send away!
-    server.sendmail(destination_email_address, notify_email_address, msg.as_string())
+    server.sendmail(notify_email_address, destination_email_address, msg.as_string())
     server.quit()
 
 
