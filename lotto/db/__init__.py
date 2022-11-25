@@ -98,6 +98,35 @@ def query_tickets_table(
     return all_tickets
 
 
+def query_schedule_table(
+    conn: sqlite3.Connection,
+    schedule_table: str,
+    ticket_id: int,
+    check_date: arrow.Arrow,
+) -> bool:
+    """Check to see if a ticket is already in the schedule table"""
+    schedule_date = check_date.strftime("%Y%m%d")
+    sql = f"""SELECT * from {schedule_table} where TicketKey={ticket_id} \
+        and ScheduleDate='{schedule_date}'"""
+    cursor = conn.execute(sql)
+    results = cursor.fetchall()
+    return len(results) > 0
+
+
+def add_to_schedule_table(
+    conn: sqlite3.Connection,
+    schedule_table: str,
+    ticket_id: int,
+    check_date: arrow.Arrow,
+) -> None:
+    """Check to see if a ticket is already in the schedule table"""
+    schedule_date = check_date.strftime("%Y%m%d")
+    sql = f"""INSERT INTO {schedule_table} (ScheduleDate, TicketKey)
+        VALUES ('{schedule_date}', {ticket_id})"""
+    conn.execute(sql)
+    conn.commit()
+
+
 def create_schedule_table(conn: sqlite3.Connection, schedule_table_name: str) -> None:
     sql = f"""
         CREATE TABLE IF NOT EXISTS {schedule_table_name} (

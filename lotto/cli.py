@@ -12,10 +12,12 @@ import click
 from lotto import loggername
 from lotto.db import (
     add_ticket_to_tickets_table,
+    add_to_schedule_table,
     check_table_exists,
     create_schedule_table,
     create_tickets_table,
     get_connection,
+    query_schedule_table,
     query_tickets_table,
 )
 from lotto.drawings import DrawingLoader
@@ -35,6 +37,7 @@ SCHEDULE_TABLE_NAME = "ScheduleTable"
 @click.option("--notify-email-password", type=str)
 @click.option("--destination-email-address", type=str, multiple=True)
 @click.option("--db-path", type=str)
+@click.option("--show-all-notifications", is_flag=True)
 def check(
     start_date: str,
     end_date: str,
@@ -43,6 +46,7 @@ def check(
     notify_email_password: Optional[str],
     destination_email_address: Optional[List[str]],
     db_path: Optional[str] = None,
+    show_all_notifications: Optional[bool] = None,
 ) -> None:
 
     logger.info("CHECK START")
@@ -64,19 +68,30 @@ def check(
     #   Get Drawings
     for ticket in tickets:
         #   {"2022-11-21": [3, 5, 22, 45, 56, 3]}
+        assert ticket.ticket_id is not None
         drawing_class = DrawingLoader.load_drawing(
             ticket.lotto_type.value, start_date, end_date
         )
         drawings = drawing_class.get_drawings()
         for drawing_date in drawings.keys():
+            ticket_checked = query_schedule_table(
+                conn, SCHEDULE_TABLE_NAME, ticket.ticket_id, arrow.get(drawing_date)
+            )
+            if ticket_checked and not show_all_notifications:
+                #   Don't add to message if ticket already checked
+                continue
             notification_message += ticket.check_winnings(
                 drawing_date, drawings[drawing_date]
             )
+            if not ticket_checked:
+                add_to_schedule_table(
+                    conn, SCHEDULE_TABLE_NAME, ticket.ticket_id, arrow.get(drawing_date)
+                )
 
     #   Notify
     logger.info(f"NOTIFICATION: \n{notification_message}")
 
-    if notify_email:
+    if notify_email and len(notification_message) > 0:
         assert destination_email_address is not None
         assert notify_email_address is not None
         assert notify_email_password is not None
