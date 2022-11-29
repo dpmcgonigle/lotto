@@ -61,19 +61,23 @@ def check(
     notification_message = ""
 
     #   Get Tickets
+    logger.debug(f"Checking for tickets between dates {start_date} - {end_date}")
     tickets = query_tickets_table(
         conn, TICKET_TABLE_NAME, arrow.get(start_date), arrow.get(end_date)
     )
+    logger.debug(f"Found {len(tickets)} tickets : {tickets}")
 
     #   Get Drawings
     for ticket in tickets:
         #   {"2022-11-21": [3, 5, 22, 45, 56, 3]}
         assert ticket.ticket_id is not None
+        logger.debug(f"Checking ticket {ticket}")
         drawing_class = DrawingLoader.load_drawing(
             ticket.lotto_type.value, start_date, end_date
         )
         drawings = drawing_class.get_drawings()
         for drawing_date in drawings.keys():
+            logger.debug(f"Checking drawing_date {drawing_date}")
             ticket_checked = query_schedule_table(
                 conn, SCHEDULE_TABLE_NAME, ticket.ticket_id, arrow.get(drawing_date)
             )

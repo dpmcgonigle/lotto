@@ -82,6 +82,7 @@ def query_tickets_table(
     cursor = conn.execute(sql)
     results = cursor.fetchall()
     all_tickets: List[LotteryTicket] = []
+    logger.debug(f"query_tickets_table results {results}")
     for result in results:
         ticket = TicketLoader.load_ticket(
             lotto_name=result[1],
@@ -90,9 +91,11 @@ def query_tickets_table(
             numbers=[int(x) for x in result[4].split(" ")],
             ticket_id=result[0],
         )
+        #   Check for overlap
         if (
             start_date <= ticket.start_date <= end_date
             or start_date <= ticket.end_date <= end_date
+            or (ticket.start_date <= start_date and ticket.end_date >= end_date)
         ):
             all_tickets.append(ticket)
     return all_tickets
