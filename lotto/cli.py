@@ -1,6 +1,8 @@
 #! /usr/bin/env python
 """
 lotto/cli.py
+
+prev=$(date -v-60d +%F); cur=$(date +%F); python lotto/cli.py check -s ${prev} -e ${cur} --db-path data/db/database.db --show-all-notifications
 """
 import logging
 import sqlite3
